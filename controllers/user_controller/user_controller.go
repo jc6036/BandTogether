@@ -1,15 +1,15 @@
 package user_controller
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
-func GetUser(c *gin.Context) {
-	name := c.Param("name")
+func GetUser(c *gin.Context) gin.H {
+	// name := c.Param("name")
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": name,
-	})
+	return gin.H {
+		"id":     "testid",
+		"name":   "Jesse Cabell",
+		"avatar": "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=256&q=80&auto=format&fit=crop",
+	}
 }

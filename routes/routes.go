@@ -4,23 +4,24 @@ import (
 	"BandTogether/controllers/search_controller"
 	"BandTogether/controllers/user_controller"
 
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterRoutes(r *gin.Engine) {
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello, world!",
-		})
+	r.LoadHTMLGlob("page/templates/*")
+
+	// r.Static("/", "./page")
+	r.Static("/styles", "./page/styles")
+
+	// SSR Page Loads
+	r.GET("/home", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "home.html", user_controller.GetUser(c))
 	})
 
-	r.GET("/user/:name", func(c *gin.Context) {
-		user_controller.GetUser(c)
-	})
-
-	r.GET("/search", func(c *gin.Context) {
+	// Data routes
+	r.GET("api/search", func(c *gin.Context) {
 		search_controller.UserSearch(c)
 	})
-
-	r.Static("/home", "./page")
 }

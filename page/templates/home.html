@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BandTogether • Home</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="styles/homepage.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="#" aria-label="BandTogether Home">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__type">Band<span class="logo__accent">Together</span></span>
+    </a>
+  </header>
+
+  <main class="shell">
+    <!-- Current user card / profile summary -->
+    <section class="user-card" aria-labelledby="you">
+      <div class="avatar" id="user-avatar" aria-hidden="true">
+        <img id="avatar-img" alt="" src="" />
+      </div>
+      <div class="user-meta">
+        <h1 id="you" class="user-name">Welcome, <span id="user-name"></span> 👋</h1>
+        <p class="user-sub">Here’s what’s coming up for you.</p>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <h2 class="section-title">Upcoming engagements</h2>
+    </div>
+
+    <!-- Engagement list rendered by JS -->
+    <section id="engagement-list" class="list" aria-live="polite" aria-busy="true">
+      <!-- Cards will be injected here -->
+    </section>
+  </main>
+
+  <template id="engagement-card-template">
+    <article class="card">
+      <button class="engagement" aria-expanded="false" aria-controls="details-:id:" data-id=":id:" title="Show details">
+        <div class="date-pill"><b>:datePretty:</b><span>:weekday:</span></div>
+        <div class="summary">
+          <h3>:title:</h3>
+          <p>:summary:</p>
+        </div>
+        <div class="people">
+          <div class="stack">:peopleChips:</div>
+        </div>
+      </button>
+      <div id="details-:id:" class="expand" hidden>
+        <div class="expand-inner">
+          <div class="meta-grid">
+            <div class="meta"><b>Title</b><span>:title:</span></div>
+            <div class="meta"><b>Date</b><span>:dateFull:</span></div>
+            <div class="meta"><b>Time</b><span>:timeRange:</span></div>
+            <div class="meta"><b>Created</b><span>:createdAt:</span></div>
+          </div>
+          <div class="meta" style="grid-column: 1/-1">
+            <b>Description</b>
+            <div>:descriptionHTML:</div>
+          </div>
+          <div class="meta" style="grid-column: 1/-1">
+            <b>Attendees</b>
+            <div class="stack">:peopleChipsFull:</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" data-action="edit">Edit</button>
+          <button class="btn" data-action="open">Open</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    // =====================
+    // BandTogether • Home
+    // Vanilla JS starter with a render() pipeline and accessible disclosure cards
+    // =====================
+
+    /** Example event shape you can mirror in your API
+     *  id: string
+     *  title: string
+     *  description: string (markdown or plain)
+     *  date: ISO date string (YYYY-MM-DD)
+     *  start: ISO time (HH:MM)
+     *  end: ISO time (HH:MM)
+     *  users: [{ id, name, avatar }]
+     *  createdAt: ISO datetime
+     */
+
+    function GetDummyUser() {
+      return {
+        id:     "testid",
+        name:   "{{ .name }}",
+        avatar: "{{ .avatar }}",     
+      }
+    }
+
+    function GetDummyData() {
+        var currentUser = {
+          id:     "testid",
+          name:   "{{ .name }}",
+          avatar: "{{ .avatar }}",     
+        }
+
+        return [ {
+          id: "evt_rockmill",
+          title: "Full-band rehearsal @ Rockmill Studio",
+          description: "Tighten the bridge on *Neon Skyline* and run the set twice. Bring in-ears.\n\n- Arrive 10 early for line check\n- Metronome at 106 bpm for **Skyline**\n- New harmony on chorus 2",
+          date: new Date().toISOString().slice(0,10),
+          start: "19:00",
+          end: "21:30",
+          users: [
+            { id: "u1", name: "Ava", avatar: "https://i.pravatar.cc/64?img=32" },
+            { id: "u2", name: "Miguel", avatar: "https://i.pravatar.cc/64?img=5" },
+            { id: "u3", name: "Sam", avatar: "https://i.pravatar.cc/64?img=15" },
+            currentUser,
+          ],
+          createdAt: new Date(Date.now() - 1000*60*60*24*3).toISOString()
+        },
+        {
+          id: "evt_cafe",
+          title: "Acoustic duo – Blue Finch Cafe",
+          description: "2×45 sets. Bring DI, capo, merch square reader. House provides PA.",
+          date: new Date(Date.now() + 1000*60*60*24*2).toISOString().slice(0,10),
+          start: "18:30",
+          end: "20:15",
+          users: [
+            { id: "u5", name: "Riley", avatar: "https://i.pravatar.cc/64?img=48" },
+            currentUser,
+          ],
+          createdAt: new Date(Date.now() - 1000*60*60*24*10).toISOString()
+        },
+        {
+          id: "evt_fest",
+          title: "Riverlights Festival – Main Stage",
+          description: "30-min changeover. City backline available. Parking passes in drive.",
+          date: new Date(Date.now() + 1000*60*60*24*12).toISOString().slice(0,10),
+          start: "16:00",
+          end: "17:00",
+          users: [
+            { id: "u6", name: "Taylor", avatar: "https://i.pravatar.cc/64?img=21" },
+            { id: "u7", name: "Jordan", avatar: "https://i.pravatar.cc/64?img=11" },
+            currentUser,
+          ],
+          createdAt: new Date(Date.now() - 1000*60*60*24*20).toISOString()
+        }
+      ];
+    }
+
+    // ---- Formatting helpers ----
+    const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+    const fmtLong = new Intl.DateTimeFormat(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const fmtWeekday = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
+
+    const timeFmt = (hhmm) => {
+      const [h, m] = hhmm.split(':').map(Number);
+      const d = new Date(); d.setHours(h, m, 0, 0);
+      return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(d);
+    };
+
+    const mdToHTML = (s="") => {
+      // ultra-light MD: *italic*, **bold**, - bullets
+      return s
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/(^|\n)-\s+(.*)/g, '$1• $2')
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n/g, '<br/>');
+    };
+
+    // ---- Render pipeline ----
+    function renderUser(u) {
+      document.getElementById('user-name').textContent = u.name;
+      const img = document.querySelector('#user-avatar img');
+      img.src = u.avatar;
+      img.alt = `${u.name}'s profile picture`;
+    }
+
+    function chipHTML(p) {
+      const name = p.name ?? 'Unknown';
+      const avatar = p.avatar ?? 'https://i.pravatar.cc/64?u=unknown';
+      return `<span class="chip" title="${name}"><img alt="" src="${avatar}" loading="lazy"/><span>${name}</span></span>`;
+    }
+
+    function engagementCardHTML(e) {
+      const dateObj = new Date(e.date + 'T00:00:00');
+      const datePretty = fmt.format(dateObj);
+      const weekday = fmtWeekday.format(dateObj);
+      const dateFull = fmtLong.format(dateObj);
+      const timeRange = `${timeFmt(e.start)} – ${timeFmt(e.end)}`;
+      const createdAt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(e.createdAt));
+      const summary = e.description.split(/\n|\./)[0].slice(0, 140);
+      const peopleChips = e.users.slice(0,4).map(chipHTML).join('');
+      const peopleChipsFull = e.users.map(chipHTML).join('');
+
+      const tpl = document.getElementById('engagement-card-template').innerHTML
+        .replaceAll(':id:', e.id)
+        .replaceAll(':datePretty:', datePretty)
+        .replaceAll(':weekday:', weekday)
+        .replaceAll(':title:', escapeHtml(e.title))
+        .replaceAll(':summary:', escapeHtml(summary))
+        .replaceAll(':dateFull:', dateFull)
+        .replaceAll(':timeRange:', timeRange)
+        .replaceAll(':createdAt:', createdAt)
+        .replaceAll(':descriptionHTML:', mdToHTML(escapeHtml(e.description)))
+        .replaceAll(':peopleChips:', peopleChips)
+        .replaceAll(':peopleChipsFull:', peopleChipsFull);
+
+      const wrap = document.createElement('div');
+      wrap.innerHTML = tpl.trim();
+      const card = wrap.firstElementChild;
+
+      // Disclosure behavior
+      const btn = card.querySelector('.engagement');
+      const panel = card.querySelector('.expand');
+      btn.addEventListener('click', () => togglePanel(btn, panel));
+      btn.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); btn.click(); }
+      });
+
+      // Card actions (stub)
+      card.querySelector('[data-action="open"]').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        console.log('Open engagement', e.id);
+        // window.location.href = `/engagements/${encodeURIComponent(e.id)}`;
+      });
+      card.querySelector('[data-action="edit"]').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        console.log('Edit engagement', e.id);
+      });
+
+      return card;
+    }
+
+    function togglePanel(button, panel) {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      const next = !expanded;
+      button.setAttribute('aria-expanded', String(next));
+      panel.hidden = false;
+      // Animate height
+      panel.style.maxHeight = next ? panel.scrollHeight + 'px' : '0px';
+      // Collapse after transition to allow tab focus handling
+      if (!next) {
+        panel.addEventListener('transitionend', function onEnd() {
+          panel.hidden = true; panel.removeEventListener('transitionend', onEnd);
+        });
+      }
+    }
+
+    function renderList(events) {
+      const list = document.getElementById('engagement-list');
+      list.innerHTML = '';
+
+      if (!events?.length) {
+        list.innerHTML = `<div class="empty">No upcoming engagements yet. Once you add a rehearsal or gig, you'll see it here.</div>`;
+        list.setAttribute('aria-busy', 'false');
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      events
+        .slice()
+        .sort((a,b) => (a.date + ' ' + a.start).localeCompare(b.date + ' ' + b.start))
+        .forEach(e => frag.appendChild(engagementCardHTML(e)));
+      list.appendChild(frag);
+      list.setAttribute('aria-busy', 'false');
+    }
+
+    function escapeHtml(str="") {
+      return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    // ---- Data boot ----
+    async function boot() {
+      const currentuser = GetDummyUser();
+      renderUser(currentuser);
+
+      const events = GetDummyData();
+      renderList(events);
+    }
+
+    document.addEventListener('DOMContentLoaded', boot);
+  </script>
+</body>
+</html>
