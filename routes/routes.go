@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"BandTogether/controllers/event_controller"
 	"BandTogether/controllers/search_controller"
 	"BandTogether/controllers/user_controller"
 
@@ -12,7 +13,6 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	r.LoadHTMLGlob("page/templates/*")
 
-	// r.Static("/", "./page")
 	r.Static("/styles", "./page/styles")
 
 	// SSR Page Loads
@@ -23,5 +23,9 @@ func RegisterRoutes(r *gin.Engine) {
 	// Data routes
 	r.GET("api/search", func(c *gin.Context) {
 		search_controller.UserSearch(c)
+	})
+
+	r.GET("api/events", func(c *gin.Context) {
+		event_controller.GetUserEvents(c)
 	})
 }

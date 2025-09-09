@@ -84,11 +84,7 @@
     }
 
     function GetDummyData() {
-        var currentUser = {
-          id:     "testid",
-          name:   "{{ .name }}",
-          avatar: "{{ .avatar }}",     
-        }
+        var currentUser = GetDummyUser();
 
         return [ {
           id: "evt_rockmill",
