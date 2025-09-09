@@ -75,22 +75,6 @@
   </template>
 
   <script>
-    // =====================
-    // BandTogether • Home
-    // Vanilla JS starter with a render() pipeline and accessible disclosure cards
-    // =====================
-
-    /** Example event shape you can mirror in your API
-     *  id: string
-     *  title: string
-     *  description: string (markdown or plain)
-     *  date: ISO date string (YYYY-MM-DD)
-     *  start: ISO time (HH:MM)
-     *  end: ISO time (HH:MM)
-     *  users: [{ id, name, avatar }]
-     *  createdAt: ISO datetime
-     */
-
     function GetDummyUser() {
       return {
         id:     "testid",
@@ -172,14 +156,6 @@
         .replace(/\n/g, '<br/>');
     };
 
-    // ---- Render pipeline ----
-    function renderUser(u) {
-      document.getElementById('user-name').textContent = u.name;
-      const img = document.querySelector('#user-avatar img');
-      img.src = u.avatar;
-      img.alt = `${u.name}'s profile picture`;
-    }
-
     function chipHTML(p) {
       const name = p.name ?? 'Unknown';
       const avatar = p.avatar ?? 'https://i.pravatar.cc/64?u=unknown';
@@ -249,6 +225,13 @@
           panel.hidden = true; panel.removeEventListener('transitionend', onEnd);
         });
       }
+    }
+
+    function renderUser(u) {
+      document.getElementById('user-name').textContent = u.name;
+      const img = document.querySelector('#user-avatar img');
+      img.src = u.avatar;
+      img.alt = `${u.name}'s profile picture`;
     }
 
     function renderList(events) {
