@@ -1,0 +1,27 @@
+What are the basic requirements to tackle next?
+
+- Users must log in to use the service, that way we know which events to display, who is allowed to add other users to events, and who created an event.
+    - Basic Auth and Registration
+    - User persistance (store as JSON on-disk, stub out for DB integration later)
+    - Login and Registration Page
+        - On successful login, redirect to main page as specific user
+    - When a user first attempts to access any page on the site, we do an auth check. If they are not currently authed, redirect to login/registration.
+        - Cache auth (research methods, cookies, session persistance, etc)
+    - Basic Auth can be stubbed out to prepare for real auth later. For practicality's sake, we just need a way to login and create new users.
+- Users may create, update, and delete events, as well as viewing them. Full CRUD operations on events should be implemented.
+    - Create new event button on main page -> opens up event manager
+        - Event manager is a card with fields available to enter event information
+        - Additionally, user names may be entered (name will be searched, dropdown presented of
+            all matching users that are available as friends, click to finalize selection)
+        - Usernames will be interactable with an X to remove them from the event
+    - Edit button on event cards that opens up the event in the event manager
+    - Delete button on event cards provides a prompt of Are You Sure? Then deletes the event
+    - Basic storage - store as JSON on-disk, stub out for DB integration later
+
+Future Ideas
+- User profile configuration, user profile image uploads. 
+- Creation of bands with X users in them, so that those users can be added to an event as a group rather than individually keyed. 
+- Push notifications via email when event is scheduled/coming up. 
+- Site settings that users can set for things like turning notifications on/off. 
+- Band/User profiles that are viewable by other users. 
+- Public/Private/Friends profile settings so that a person or band's profile can be viewable by anyone logged in, not viewable by anyone, or viewable only by friends.
