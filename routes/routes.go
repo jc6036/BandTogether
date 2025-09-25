@@ -16,7 +16,7 @@ func RegisterRoutes(r *gin.Engine) {
 	r.Static("/styles", "./page/styles")
 
 	// SSR Page Loads
-	r.GET("/home", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "home.html", user_controller.GetUser(c))
 	})
 

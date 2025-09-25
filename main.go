@@ -1,6 +1,3 @@
-// TODO: Get the hardcoded dummy data out of the home page
-// TODO: Sub-task since I'm breaking for the night - make an AJAX call to the events API to grab the data, it's there and ready
-// TODO: added for testing git
 // Every program starts here
 package main
 
