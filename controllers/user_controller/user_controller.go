@@ -4,8 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUser(c *gin.Context) gin.H {
-	// name := c.Param("name")
+func GetUserById(c *gin.Context) gin.H {
+	// userId := c.Param("userId")
+
+	// Get DB Connection
+	// SELECT JSONB FROM users WHERE users.id = <?param>
+	// Return
 
 	return gin.H{
 		"id":     "testid",

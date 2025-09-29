@@ -17,7 +17,8 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// SSR Page Loads
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home.html", user_controller.GetUser(c))
+		// TODO: Some param testing, use ?id=1 or id=0 just to see if we can pull from our new db hookup
+		c.HTML(http.StatusOK, "home.html", user_controller.GetUserById(c))
 	})
 
 	// Data routes
