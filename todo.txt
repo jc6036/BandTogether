@@ -25,3 +25,13 @@ Future Ideas
 - Site settings that users can set for things like turning notifications on/off. 
 - Band/User profiles that are viewable by other users. 
 - Public/Private/Friends profile settings so that a person or band's profile can be viewable by anyone logged in, not viewable by anyone, or viewable only by friends.
+
+
+I'm now realizing that a feature and requirement timeline needs to be defined better
+Stage 1: Event CRUD without logins or auth
+1. You should be able to access each user's page via simple URL parameters. Their page should describe the events tied to them correctly.
+2. Being on a user's page counts as being 'logged in' as that user for now, until we get auth in. That can come after some basic CRUD.
+3. As a user, you should be able to add, edit, and delete events, adding or removing other users as needed.
+Stage 2: Auth added, user CRUD completed - may not access main page without a login.
+4. Once this essential CRUD is completed, add logins and auth, completing CRUD for the User data
+5. Include a bcrypt password hash table and set up a simple email password recovery system

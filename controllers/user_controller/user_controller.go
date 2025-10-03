@@ -16,10 +16,10 @@ type User struct {
 
 func GetUserById(c *gin.Context, db *sql.DB) gin.H {
 	userId := c.Query("userId")
-
+	// TODO: Sanitize against SQL injection
 	qstr := "SELECT userId, json FROM btusers WHERE userId = " + userId + ";"
 
-	data := performRead(db, qstr)
+	data := queryDB(db, qstr)
 
 	var user User
 	err := json.Unmarshal([]byte(data), &user)
@@ -34,7 +34,7 @@ func GetUserById(c *gin.Context, db *sql.DB) gin.H {
 	}
 }
 
-func performRead(db *sql.DB, statement string) string {
+func queryDB(db *sql.DB, statement string) string {
 	rows, err := db.Query(statement)
 	if err != nil {
 		return err.Error()
