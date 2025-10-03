@@ -16,8 +16,7 @@ func RegisterRoutes(r *gin.Engine) {
 	r.Static("/styles", "./page/styles")
 
 	// SSR Page Loads
-	r.GET("/", func(c *gin.Context) {
-		// TODO: Some param testing, use ?id=1 or id=0 just to see if we can pull from our new db hookup
+	r.GET("/home", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "home.html", user_controller.GetUserById(c))
 	})
 

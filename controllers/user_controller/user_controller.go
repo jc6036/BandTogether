@@ -2,18 +2,87 @@ package user_controller
 
 import (
 	"github.com/gin-gonic/gin"
+
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
+
+	"github.com/go-sql-driver/mysql"
 )
 
-func GetUserById(c *gin.Context) gin.H {
-	// userId := c.Param("userId")
+type User struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
 
-	// Get DB Connection
-	// SELECT JSONB FROM users WHERE users.id = <?param>
-	// Return
+func GetUserById(c *gin.Context) gin.H {
+	userId := c.Query("userId")
+
+	qstr := "SELECT userId, json FROM btusers WHERE userId = " + userId + ";"
+
+	db := getDBConnection()
+	data := performRead(db, qstr)
+
+	var user User
+	err := json.Unmarshal([]byte(data), &user)
+	if err != nil {
+		panic(err)
+	}
 
 	return gin.H{
-		"id":     "testid",
-		"name":   "Jesse Cabell",
-		"avatar": "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=256&q=80&auto=format&fit=crop",
+		"id":     user.ID,
+		"name":   user.Name,
+		"avatar": user.Avatar,
 	}
+}
+
+func getDBConnection() *sql.DB {
+	// Capture connection properties.
+	cfg := mysql.NewConfig()
+	cfg.User = ""
+	cfg.Passwd = ""
+	cfg.Net = "tcp"
+	cfg.Addr = "127.0.0.1:3306"
+	cfg.DBName = "BandTogether"
+
+	// Get a database handle.
+	var db *sql.DB
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pingErr := db.Ping()
+	if pingErr != nil {
+		log.Fatal(pingErr)
+	}
+	fmt.Println("Connected!")
+
+	return db
+}
+
+func performRead(db *sql.DB, statement string) string {
+	rows, err := db.Query(statement)
+	if err != nil {
+		return err.Error()
+	}
+	defer rows.Close()
+	// Loop through rows, using Scan to assign column data to struct fields.
+	var retstring string
+	for rows.Next() {
+		var id int
+		var jret string
+
+		err := rows.Scan(&id, &jret)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		retstring = jret
+	}
+
+	return retstring
 }
