@@ -8,16 +8,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 func RegisterRoutes(r *gin.Engine) {
+	db := getDBConnection()
+
 	r.LoadHTMLGlob("page/templates/*")
 
 	r.Static("/styles", "./page/styles")
 
 	// SSR Page Loads
 	r.GET("/home", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home.html", user_controller.GetUserById(c))
+		c.HTML(http.StatusOK, "home.html", user_controller.GetUserById(c, db))
 	})
 
 	// Data routes
@@ -28,4 +37,30 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("api/events", func(c *gin.Context) {
 		event_controller.GetUserEvents(c)
 	})
+}
+
+func getDBConnection() *sql.DB {
+	// Capture connection properties.
+	cfg := mysql.NewConfig()
+	cfg.User = os.Getenv("DB_USER")
+	cfg.Passwd = os.Getenv("DB_PASS")
+	cfg.Net = "tcp"
+	cfg.Addr = "127.0.0.1:3306"
+	cfg.DBName = "BandTogether"
+
+	// Get a database handle.
+	var db *sql.DB
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pingErr := db.Ping()
+	if pingErr != nil {
+		log.Fatal(pingErr)
+	}
+	fmt.Println("Connected!")
+
+	return db
 }

@@ -5,10 +5,7 @@ import (
 
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 type User struct {
@@ -17,12 +14,11 @@ type User struct {
 	Avatar string `json:"avatar"`
 }
 
-func GetUserById(c *gin.Context) gin.H {
+func GetUserById(c *gin.Context, db *sql.DB) gin.H {
 	userId := c.Query("userId")
 
 	qstr := "SELECT userId, json FROM btusers WHERE userId = " + userId + ";"
 
-	db := getDBConnection()
 	data := performRead(db, qstr)
 
 	var user User
@@ -36,32 +32,6 @@ func GetUserById(c *gin.Context) gin.H {
 		"name":   user.Name,
 		"avatar": user.Avatar,
 	}
-}
-
-func getDBConnection() *sql.DB {
-	// Capture connection properties.
-	cfg := mysql.NewConfig()
-	cfg.User = ""
-	cfg.Passwd = ""
-	cfg.Net = "tcp"
-	cfg.Addr = "127.0.0.1:3306"
-	cfg.DBName = "BandTogether"
-
-	// Get a database handle.
-	var db *sql.DB
-	var err error
-	db, err = sql.Open("mysql", cfg.FormatDSN())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
-	}
-	fmt.Println("Connected!")
-
-	return db
 }
 
 func performRead(db *sql.DB, statement string) string {
