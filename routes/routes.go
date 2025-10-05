@@ -26,7 +26,13 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// SSR Page Loads
 	r.GET("/home", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home.html", user_controller.GetUserById(c, db))
+		user, err := user_controller.GetUserById(c, db)
+
+		if err != nil {
+			log.Fatalf("An error has occurred: %s", err.Error())
+		}
+
+		c.HTML(http.StatusOK, "home.html", user)
 	})
 
 	// Data routes
