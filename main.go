@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	r := gin.Default()
+	engine := gin.Default()
 
-	routes.RegisterRoutes(r)
+	routes.RegisterRoutes(engine)
 
-	r.Run(":8080")
+	engine.Run(":8080")
 }

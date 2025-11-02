@@ -17,36 +17,35 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func RegisterRoutes(r *gin.Engine) {
+func RegisterRoutes(engine *gin.Engine) {
 	db := getDBConnection()
 
-	r.LoadHTMLGlob("page/templates/*")
+	engine.LoadHTMLGlob("page/templates/*")
 
-	r.Static("/styles", "./page/styles")
+	engine.Static("/styles", "./page/styles")
 
 	// SSR Page Loads
-	r.GET("/home", func(c *gin.Context) {
-		user, err := user_controller.GetUserById(c, db)
+	engine.GET("/home", func(route_context *gin.Context) {
+		userdata, err := user_controller.GetUserById(route_context, db)
 
 		if err != nil {
 			log.Fatalf("An error has occurred: %s", err.Error())
 		}
 
-		c.HTML(http.StatusOK, "home.html", user)
+		route_context.HTML(http.StatusOK, "home.html", userdata)
 	})
 
 	// Data routes
-	r.GET("api/search", func(c *gin.Context) {
-		search_controller.UserSearch(c)
+	engine.GET("api/search", func(route_context *gin.Context) {
+		search_controller.UserSearch(route_context)
 	})
 
-	r.GET("api/events", func(c *gin.Context) {
-		event_controller.GetUserEvents(c)
+	engine.GET("api/events", func(route_context *gin.Context) {
+		event_controller.GetUserEvents(route_context)
 	})
 }
 
 func getDBConnection() *sql.DB {
-	// Capture connection properties.
 	cfg := mysql.NewConfig()
 	cfg.User = os.Getenv("DB_USER")
 	cfg.Passwd = os.Getenv("DB_PASS")
@@ -54,7 +53,6 @@ func getDBConnection() *sql.DB {
 	cfg.Addr = "127.0.0.1:3306"
 	cfg.DBName = "BandTogether"
 
-	// Get a database handle.
 	var db *sql.DB
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())

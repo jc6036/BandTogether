@@ -38,6 +38,7 @@ func GetUserById(c *gin.Context, db *sql.DB) (gin.H, error) {
 }
 
 func queryDB(db *sql.DB, statement string) (string, error) {
+	// Straightforward - Run the provided statement on the provided DB connection, return results
 	rows, err := db.Query(statement)
 	if err != nil {
 		return "", err

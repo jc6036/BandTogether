@@ -114,60 +114,60 @@
         .replace(/\n/g, '<br/>');
     };
 
-    function chipHTML(p) {
-      const name = p.name ?? 'Unknown';
-      const avatar = p.avatar ?? 'https://i.pravatar.cc/64?u=unknown';
+    function chipHTML(user) {
+      const name = user.name ?? 'Unknown';
+      const avatar = user.avatar ?? 'https://i.pravatar.cc/64?u=unknown';
       return `<span class="chip" title="${name}"><img alt="" src="${avatar}" loading="lazy"/><span>${name}</span></span>`;
     }
 
-    function engagementCardHTML(e) {
-      const dateObj = new Date(e.date + ' 00:00:00');
+    function engagementCardHTML(event_data) {
+      const dateObj = new Date(event_data.date + ' 00:00:00');
       const datePretty = fmt.format(dateObj);
       const weekday = fmtWeekday.format(dateObj);
       const dateFull = fmtLong.format(dateObj);
-      const timeRange = `${timeFmt(e.start)} – ${timeFmt(e.end)}`;
-      const createdAt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(e.createdAt));
-      const summary = e.description.split(/\n|\./)[0].slice(0, 140);
-      const peopleChips = e.users.slice(0,4).map(chipHTML).join('');
-      const peopleChipsFull = e.users.map(chipHTML).join('');
+      const timeRange = `${timeFmt(event_data.start)} – ${timeFmt(event_data.end)}`;
+      const createdAt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(event_data.createdAt));
+      const summary = event_data.description.split(/\n|\./)[0].slice(0, 140);
+      const peopleChips = event_data.users.slice(0,4).map(chipHTML).join('');
+      const peopleChipsFull = event_data.users.map(chipHTML).join('');
 
-      const tpl = document.getElementById('engagement-card-template').innerHTML
-        .replaceAll(':id:', e.id)
+      const event_template = document.getElementById('engagement-card-template').innerHTML
+        .replaceAll(':id:', event_data.id)
         .replaceAll(':datePretty:', datePretty)
         .replaceAll(':weekday:', weekday)
-        .replaceAll(':title:', escapeHtml(e.title))
+        .replaceAll(':title:', escapeHtml(event_data.title))
         .replaceAll(':summary:', escapeHtml(summary))
         .replaceAll(':dateFull:', dateFull)
         .replaceAll(':timeRange:', timeRange)
         .replaceAll(':createdAt:', createdAt)
-        .replaceAll(':descriptionHTML:', mdToHTML(escapeHtml(e.description)))
+        .replaceAll(':descriptionHTML:', mdToHTML(escapeHtml(event_data.description)))
         .replaceAll(':peopleChips:', peopleChips)
         .replaceAll(':peopleChipsFull:', peopleChipsFull);
 
-      const wrap = document.createElement('div');
-      wrap.innerHTML = tpl.trim();
-      const card = wrap.firstElementChild;
+      const divwrap = document.createElement('div');
+      divwrap.innerHTML = event_template.trim();
+      const event_card = divwrap.firstElementChild;
 
       // Disclosure behavior
-      const btn = card.querySelector('.engagement');
-      const panel = card.querySelector('.expand');
+      const btn = event_card.querySelector('.engagement');
+      const panel = event_card.querySelector('.expand');
       btn.addEventListener('click', () => togglePanel(btn, panel));
       btn.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); btn.click(); }
       });
 
       // Card actions (stub)
-      card.querySelector('[data-action="open"]').addEventListener('click', (ev) => {
+      event_card.querySelector('[data-action="open"]').addEventListener('click', (ev) => {
         ev.stopPropagation();
-        console.log('Open engagement', e.id);
-        // window.location.href = `/engagements/${encodeURIComponent(e.id)}`;
+        console.log('Open engagement', event_data.id);
+        // window.location.href = `/engagements/${encodeURIComponent(event_data.id)}`;
       });
-      card.querySelector('[data-action="edit"]').addEventListener('click', (ev) => {
+      event_card.querySelector('[data-action="edit"]').addEventListener('click', (ev) => {
         ev.stopPropagation();
-        console.log('Edit engagement', e.id);
+        console.log('Edit engagement', event_data.id);
       });
 
-      return card;
+      return event_card;
     }
 
     function togglePanel(button, panel) {
@@ -185,11 +185,11 @@
       }
     }
 
-    function renderUser(u) {
-      document.getElementById('user-name').textContent = u.name;
+    function renderUser(user_data) {
+      document.getElementById('user-name').textContent = user_data.name;
       const img = document.querySelector('#user-avatar img');
-      img.src = u.avatar;
-      img.alt = `${u.name}'s profile picture`;
+      img.src = user_data.avatar;
+      img.alt = `${user_data.name}'s profile picture`;
     }
 
     function renderList(events) {
@@ -206,7 +206,7 @@
       events
         .slice()
         .sort((a,b) => (a.date + ' ' + a.start).localeCompare(b.date + ' ' + b.start))
-        .forEach(e => frag.appendChild(engagementCardHTML(e)));
+        .forEach(event => frag.appendChild(engagementCardHTML(event)));
       list.appendChild(frag);
       list.setAttribute('aria-busy', 'false');
     }
