@@ -1,5 +1,5 @@
 -- Create
-CREATE TABLE `btusers` (
+CREATE TABLE `user` (
   `userId` int NOT NULL AUTO_INCREMENT,
   `json` json NOT NULL,
   PRIMARY KEY (`userId`),
